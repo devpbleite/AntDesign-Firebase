@@ -1,12 +1,37 @@
-import React, { useContext } from "react";
-import { Descriptions } from "antd";
+import React, { useEffect, useState } from "react";
+import { Descriptions, Spin } from "antd";
 import { useParams } from "react-router-dom";
-import { SupplierContext } from "../context/SupplierContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const SupplierDetails = () => {
   const { id } = useParams();
-  const { suppliers } = useContext(SupplierContext);
-  const supplier = suppliers.find((supplier) => supplier.id === parseInt(id));
+  const [supplier, setSupplier] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSupplier = async () => {
+      setLoading(true);
+      const supplierDoc = doc(db, "suppliers", id);
+      const supplierSnapshot = await getDoc(supplierDoc);
+      if (supplierSnapshot.exists()) {
+        setSupplier({ id: supplierSnapshot.id, ...supplierSnapshot.data() });
+      } else {
+        setSupplier(null);
+      }
+      setLoading(false);
+    };
+
+    fetchSupplier();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   if (!supplier) {
     return (

@@ -1,10 +1,16 @@
-import React, { createContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import { db } from "../firebase";
 import {
-  getSuppliers,
-  addSupplier,
-  updateSupplier,
-  deleteSupplier,
-} from "../services/api";
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export const SupplierContext = createContext();
 
@@ -14,23 +20,34 @@ export const SupplierProvider = ({ children }) => {
 
   const fetchSuppliers = async () => {
     setLoading(true);
-    const response = await getSuppliers();
-    setSuppliers(response);
+    const suppliersCollection = collection(db, "suppliers");
+    const suppliersQuery = query(suppliersCollection, orderBy("createdAt"));
+    const supplierSnapshot = await getDocs(suppliersQuery);
+    const supplierList = supplierSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setSuppliers(supplierList);
     setLoading(false);
   };
 
   const addNewSupplier = async (supplier) => {
-    await addSupplier(supplier);
+    await addDoc(collection(db, "suppliers"), {
+      ...supplier,
+      createdAt: serverTimestamp(),
+    });
     fetchSuppliers();
   };
 
   const updateExistingSupplier = async (supplier) => {
-    await updateSupplier(supplier);
+    const supplierDoc = doc(db, "suppliers", supplier.id);
+    await updateDoc(supplierDoc, supplier);
     fetchSuppliers();
   };
 
   const deleteExistingSupplier = async (id) => {
-    await deleteSupplier(id);
+    const supplierDoc = doc(db, "suppliers", id);
+    await deleteDoc(supplierDoc);
     fetchSuppliers();
   };
 
@@ -38,19 +55,16 @@ export const SupplierProvider = ({ children }) => {
     fetchSuppliers();
   }, []);
 
-  const value = useMemo(
-    () => ({
-      suppliers,
-      loading,
-      addNewSupplier,
-      updateExistingSupplier,
-      deleteExistingSupplier,
-    }),
-    [suppliers, loading]
-  );
-
   return (
-    <SupplierContext.Provider value={value}>
+    <SupplierContext.Provider
+      value={{
+        suppliers,
+        loading,
+        addNewSupplier,
+        updateExistingSupplier,
+        deleteExistingSupplier,
+      }}
+    >
       {children}
     </SupplierContext.Provider>
   );

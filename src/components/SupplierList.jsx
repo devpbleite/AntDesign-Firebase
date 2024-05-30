@@ -22,6 +22,7 @@ const SupplierList = () => {
       dataIndex: "name",
       key: "name",
       width: "20%",
+      fontWeight: "bold",
     },
     {
       title: "Email",
@@ -63,7 +64,7 @@ const SupplierList = () => {
         columns={columns}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: 5 }}
       />
     </div>
   );

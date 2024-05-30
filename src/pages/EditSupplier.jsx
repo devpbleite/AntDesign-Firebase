@@ -1,38 +1,63 @@
-import React, { useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { Form, Input, Button } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
-import SupplierForm from "../components/SupplierForm";
 import { SupplierContext } from "../context/SupplierContext";
-import { Button } from "antd";
 
 const EditSupplier = () => {
+  const { suppliers, updateExistingSupplier } = useContext(SupplierContext);
+  const [form] = Form.useForm();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { suppliers, updateExistingSupplier } = useContext(SupplierContext);
+  const [supplier, setSupplier] = useState(null);
 
-  const supplier = suppliers.find((supplier) => supplier.id === parseInt(id));
+  useEffect(() => {
+    const supplier = suppliers.find((supplier) => supplier.id === id);
+    if (supplier) {
+      setSupplier(supplier);
+      form.setFieldsValue(supplier);
+    }
+  }, [id, suppliers, form]);
 
-  const handleUpdateSupplier = (updatedSupplier) => {
-    updateExistingSupplier({ ...updatedSupplier, id: parseInt(id) });
+  const onFinish = async (values) => {
+    await updateExistingSupplier({ ...values, id });
     navigate("/");
   };
 
-  if (!supplier) {
-    return (
-      <div className="container mx-auto p-4 max-w-4xl">
-        Fornecedor não encontrado
-      </div>
-    );
-  }
+  if (!supplier) return <div>Fornecedor não encontrado</div>;
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Editar Fornecedor</h1>
-        <Button type="default" onClick={() => navigate(`/details/${id}`)}>
-          Ver Detalhes
-        </Button>
+      <h1 className="text-2xl font-bold mb-4">Editar Fornecedor</h1>
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form.Item
+            name="name"
+            label="Nome"
+            rules={[{ required: true, message: "Nome é obrigatório" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ required: true, message: "Email é obrigatório" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="city"
+            label="Cidade"
+            rules={[{ required: true, message: "Cidade é obrigatória" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Salvar
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
-      <SupplierForm initialValues={supplier} onSubmit={handleUpdateSupplier} />
     </div>
   );
 };
