@@ -1,6 +1,16 @@
 let suppliers = JSON.parse(localStorage.getItem("suppliers")) || [
-  { id: 1, name: "Fornecedor A", email: "fornecedorA@example.com" },
-  { id: 2, name: "Fornecedor B", email: "fornecedorB@example.com" },
+  {
+    id: 1,
+    name: "Fornecedor A",
+    email: "fornecedorA@example.com",
+    city: "Cidade A",
+  },
+  {
+    id: 2,
+    name: "Fornecedor B",
+    email: "fornecedorB@example.com",
+    city: "Cidade B",
+  },
 ];
 
 const saveToLocalStorage = (data) => {
