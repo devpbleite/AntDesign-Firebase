@@ -27,7 +27,12 @@ const EditSupplier = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-2xl font-bold mb-4">Editar Fornecedor</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold mb-4">Editar Fornecedor</h1>
+        <Button type="default" onClick={() => navigate(`/details/${id}`)}>
+          Ver Detalhes
+        </Button>
+      </div>
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
